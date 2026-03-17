@@ -1,68 +1,50 @@
 "use client";
 
 import { useTasks } from "@/hooks/use-tasks";
-import {
-  DndContext,
-  closestCorners,
-  DragEndEvent,
-  useDroppable,
-} from "@dnd-kit/core";
-
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
-
-import { CSS } from "@dnd-kit/utilities";
-
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { Task } from "../../../types";
 import { useTaskStore } from "@/store/task-store";
 import { useUIStore } from "@/store/ui-store";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
+import { useEffect, useRef, useState } from "react";
+import { useDrag, useDrop } from "react-dnd";
+import { Task } from "../../../types";
 import { Grip } from "lucide-react";
-import { useEffect, useState } from "react";
 
-const columns = ["todo", "in-progress", "done"];
-
-
-// ✅ COLUMN (DROPPABLE FIX)
-function Column({ id, children }: { id: string; children: React.ReactNode;}) {
-  const { setNodeRef, isOver } = useDroppable({ id });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`p-4 rounded-xl min-h-[300px] transition ${
-        isOver ? "bg-blue-100" : "bg-gray-100"
-      }`}
-    >
-      {children}
-    </div>
-  );
-}
+const columns: Task["status"][] = ["todo", "in-progress", "done"];
 
 
-// ✅ TASK CARD (CLICK FIX INCLUDED)
-function SortableTask({ task }: { task: Task }) {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: task.id });
+// ✅ DRAG TYPE
+const ITEM_TYPE = "TASK";
 
+
+// ✅ TASK CARD
+function TaskCard({ task }: { task: Task }) {
   const { setTask } = useTaskStore();
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ITEM_TYPE,
+    item: task,
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  // ✅ attach drag manually
+  useEffect(() => {
+    if (ref.current) {
+      drag(ref);
+    }
+  }, [drag]);
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className="flex justify-between bg-white p-3 rounded-lg mb-2 shadow hover:shadow-md transition"
+      ref={ref}
+      className={`flex justify-between bg-white p-3 rounded-lg mb-2 shadow transition cursor-move ${
+        isDragging ? "opacity-50" : ""
+      }`}
     >
-      {/* ✅ CLICK AREA */}
       <div
         onClick={() => setTask(task.id)}
         className="cursor-pointer w-[90%]"
@@ -70,12 +52,53 @@ function SortableTask({ task }: { task: Task }) {
         {task.title}
       </div>
 
-      {/* ✅ DRAG HANDLE (VERY IMPORTANT) */}
-      <Grip 
-        {...attributes}
-        {...listeners}
-        className="h-full min-h-12 w-7 border rounded-sm text-xs text-gray-400 mt- cursor-grab " 
-      />
+      <Grip className="w-5 text-gray-400" />
+    </div>
+  );
+}
+
+
+// ✅ COLUMN
+function Column({
+  status,
+  tasks,
+  onDropTask,
+}: {
+  status: Task["status"];
+  tasks: Task[];
+  onDropTask: (task: Task, status: Task["status"]) => void;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: ITEM_TYPE,
+    drop: (item: Task) => onDropTask(item, status),
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
+
+  // ✅ attach drop manually
+  useEffect(() => {
+    if (ref.current) {
+      drop(ref);
+    }
+  }, [drop]);
+
+  return (
+    <div
+      ref={ref}
+      className={`p-4 rounded-xl min-h-[300px] ${
+        isOver ? "bg-blue-100" : "bg-gray-100"
+      }`}
+    >
+      <h2 className="font-bold mb-4 capitalize">
+        {status.replace("-", " ")}
+      </h2>
+
+      {tasks.map((task) => (
+        <TaskCard key={task.id} task={task} />
+      ))}
     </div>
   );
 }
@@ -85,7 +108,6 @@ function SortableTask({ task }: { task: Task }) {
 export default function KanbanBoard() {
   const { data: tasks = [] } = useTasks();
   const [localTasks, setLocalTasks] = useState<Task[]>([]);
-
   const { selectedProject } = useUIStore();
   const queryClient = useQueryClient();
 
@@ -93,71 +115,32 @@ export default function KanbanBoard() {
     setLocalTasks(tasks);
   }, [tasks]);
 
-  // ✅ FILTER
   const filteredTasks =
     selectedProject === "all"
       ? localTasks
-      : localTasks.filter((t: Task) => t.projectId === selectedProject);
+      : localTasks.filter((t) => t.projectId === selectedProject);
 
-  // ✅ MUTATION
   const mutation = useMutation({
     mutationFn: (task: Task) =>
       axios.put(`/api/tasks/${task.id}`, task),
-
-    onMutate: async (updatedTask) => {
-      await queryClient.cancelQueries({ queryKey: ["tasks"] });
-
-      const previous = queryClient.getQueryData<Task[]>(["tasks"]);
-
-      queryClient.setQueryData(["tasks"], (old: Task[] = []) =>
-        old.map((t) =>
-          t.id === updatedTask.id
-            ? { ...t, status: updatedTask.status }
-            : t
-        )
-      );
-
-      return { previous };
-    },
-
-    onError: (_err, _newTask, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(["tasks"], context.previous);
-      }
-    },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
-  // ✅ DRAG FIX
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over) return;
+  // ✅ DROP HANDLER (SUPER CLEAN)
+  const handleDrop = (task: Task, newStatus: Task["status"]) => {
+    if (task.status === newStatus) return;
 
-    const task = localTasks.find((t) => t.id === active.id);
-    if (!task) return;
-
-    let newStatus: Task["status"] | null = null;
-
-    if (columns.includes(over.id as string)) {
-      newStatus = over.id as Task["status"];
-    } else {
-      const overTask = localTasks.find((t) => t.id === over.id);
-      if (overTask) newStatus = overTask.status;
-    }
-
-    if (!newStatus || task.status === newStatus) return;
-
-    // ✅ INSTANT UI UPDATE (THIS FIXES SNAP BACK)
+    // 🔥 instant UI update
     setLocalTasks((prev) =>
       prev.map((t) =>
-        t.id === task.id ? { ...t, status: newStatus! } : t
+        t.id === task.id ? { ...t, status: newStatus } : t
       )
     );
 
-    // ✅ THEN sync to backend
+    // 🔥 backend sync
     mutation.mutate({
       ...task,
       status: newStatus,
@@ -165,31 +148,15 @@ export default function KanbanBoard() {
   };
 
   return (
-    <DndContext collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-3 gap-4">
-        {columns.map((col) => {
-          const colTasks = filteredTasks.filter(
-            (t: Task) => t.status === col
-          );
-
-          return (
-            <Column key={col} id={col}>
-              <h2 className="font-bold mb-4 capitalize">
-                {col.replace("-", " ")}
-              </h2>
-
-              <SortableContext
-                items={colTasks.map((t: Task) => t.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {colTasks.map((task: Task) => (
-                  <SortableTask key={task.id} task={task} />
-                ))}
-              </SortableContext>
-            </Column>
-          );
-        })}
-      </div>
-    </DndContext>
+    <div className="grid grid-cols-3 gap-4">
+      {columns.map((col) => (
+        <Column
+          key={col}
+          status={col}
+          tasks={filteredTasks.filter((t) => t.status === col)}
+          onDropTask={handleDrop}
+        />
+      ))}
+    </div>
   );
 }
