@@ -2,11 +2,11 @@
 import { create } from "zustand";
 
 interface UIState {
-  selectedProject: string | null;
+  selectedProject: string;
   setProject: (id: string) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
-  selectedProject: null,
+  selectedProject: "all",
   setProject: (id) => set({ selectedProject: id }),
 }));
