@@ -7,7 +7,7 @@ import {
   closestCorners,
   DragEndEvent,
 } from "@dnd-kit/core";
-import { useTasks } from "@/hooks/useTasks";
+import { useTasks } from "@/hooks/use-tasks";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 

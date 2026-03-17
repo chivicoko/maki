@@ -1,4 +1,4 @@
-import KanbanBoard from '@/components/tasks/KanbanBoard'
+import KanbanBoard from '@/components/tasks/kanban-board'
 
 const page = () => {
   return (
