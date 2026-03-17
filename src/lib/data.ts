@@ -36,3 +36,9 @@ export let tasks: Task[] = [
     createdAt: new Date().toISOString(),
   },
 ];
+
+export const activities = [
+  "Victor created a task",
+  "John moved task to Done",
+  "Sarah commented on task",
+];

@@ -120,6 +120,8 @@ export default function KanbanBoard() {
       ? localTasks
       : localTasks.filter((t) => t.projectId === selectedProject);
 
+  console.log("filteredTasks: ", filteredTasks);
+
   const mutation = useMutation({
     mutationFn: (task: Task) =>
       axios.put(`/api/tasks/${task.id}`, task),
@@ -133,18 +135,13 @@ export default function KanbanBoard() {
   const handleDrop = (task: Task, newStatus: Task["status"]) => {
     if (task.status === newStatus) return;
 
-    // 🔥 instant UI update
-    setLocalTasks((prev) =>
-      prev.map((t) =>
-        t.id === task.id ? { ...t, status: newStatus } : t
-      )
+    // update UI instantly
+    setLocalTasks(prev =>
+      prev.map(t => t.id === task.id ? { ...t, status: newStatus } : t)
     );
 
-    // 🔥 backend sync
-    mutation.mutate({
-      ...task,
-      status: newStatus,
-    });
+    // sync backend
+    mutation.mutate({ ...task, status: newStatus });
   };
 
   return (

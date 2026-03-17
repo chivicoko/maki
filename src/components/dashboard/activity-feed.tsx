@@ -1,10 +1,6 @@
 // src/components/dashboard/ActivityFeed.tsx
 
-const activities = [
-  "Victor created a task",
-  "John moved task to Done",
-  "Sarah commented on task",
-];
+import { activities } from "@/lib/data";
 
 export default function ActivityFeed() {
   return (
