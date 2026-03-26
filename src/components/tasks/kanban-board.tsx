@@ -41,13 +41,13 @@ function TaskCard({ task }: { task: Task }) {
   return (
     <div
       ref={ref}
-      className={`flex justify-between bg-white p-3 rounded-lg mb-2 shadow transition cursor-move ${
+      className={`flex items-center justify-between rounded-lg mb-2 pr-3 bg-muted shadow transition cursor-move ${
         isDragging ? "opacity-50" : ""
       }`}
     >
       <div
         onClick={() => setTask(task.id)}
-        className="cursor-pointer w-[90%]"
+        className="cursor-pointer w-[90%] h-full py-3 pl-3"
       >
         {task.title}
       </div>
@@ -89,7 +89,7 @@ function Column({
     <div
       ref={ref}
       className={`p-4 rounded-xl min-h-[300px] ${
-        isOver ? "bg-blue-100" : "bg-gray-100"
+        isOver ? "bg-blue-100 border-2 border-blue-300 border-dashed " : "bg-white"
       }`}
     >
       <h2 className="font-bold mb-4 capitalize">

@@ -1,6 +1,6 @@
 'use client';
 
-import { PieChart, Pie, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '../ui/card';
 
@@ -8,9 +8,9 @@ import { Card, CardContent } from '../ui/card';
    DATA
 ========================= */
 const segments = [
-  { name: 'Critical', value: 16.5, fill: '#e63946' },
-  { name: 'Immediate', value: 16.5, fill: '#f4a261' },
-  { name: 'Monitor', value: 17, fill: '#e9c46a' },
+  { name: 'Critical', value: 20, fill: '#e63946' },
+  { name: 'Immediate', value: 17, fill: '#f4a261' },
+  { name: 'Monitor', value: 13, fill: '#e9c46a' },
   { name: 'Watch', value: 50, fill: '#8ab17d' }
 ];
 
@@ -113,14 +113,36 @@ const GuagePieChart = () => {
                   />
 
                   <Needle value={currentValue} />
-
                   <Tooltip />
+
+                  {/* Legend */}
+                  {/* <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    iconSize={10}
+                    layout="horizontal"
+                    wrapperStyle={{ fontSize: 12, marginTop: 10 }}
+                  /> */}
+                  
+                  {/* <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    layout="horizontal"
+                    payload={segments.map((item) => ({
+                      value: `${item.name} (${item.value})`,
+                      type: 'circle',
+                      color: item.fill
+                    }))}
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: 12, marginTop: 10, borderRadius: 2 }}
+                  /> */}
                 </PieChart>
               </ResponsiveContainer>
             </div>
 
             {/* Labels */}
-            <div className="w-full max-w-[300px] flex justify-between px-1">
+            <div className="w-full max-w-[300px] flex justify-between px-6">
               <p className="text-[12px] text-muted-foreground">0 weeks</p>
               <p className="text-[12px] text-muted-foreground">20 weeks</p>
             </div>

@@ -29,10 +29,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#eceff1]`}>
         <Providers>
           <DndProviderWrapper>
-            <div className="flex bg-[#eceff1]">
+            <div className="flex">
               <Sidebar />
               <div className="flex-1 flex flex-col">
                 <Topbar />

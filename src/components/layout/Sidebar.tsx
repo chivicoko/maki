@@ -17,7 +17,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-48 bg-white border-r p-4">
+    <aside className="w-48 min-h-screen bg-white border-r p-4">
       <h1 className="text-xl font-bold mb-6">TeamFlow</h1>
 
       <nav className="space-y-2">

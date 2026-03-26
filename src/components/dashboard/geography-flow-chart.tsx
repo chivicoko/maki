@@ -20,15 +20,15 @@ const center = { name: 'Europe Hub', coordinates: [10, 50] };
 
 const points = [
   { name: 'USA', coordinates: [-100, 40], color: '#f97316', size: 8 },
-  { name: 'Canada', coordinates: [-170, 65], color: '#ef4444', size: 7 },
+  { name: 'Canada', coordinates: [-170, 65], color: '#af2d2d', size: 7 },
   { name: 'Brazil', coordinates: [-70, -40], color: '#16a34a', size: 7 },
-  { name: 'India', coordinates: [78, 22], color: '#16a34a', size: 7 },
-  { name: 'China', coordinates: [105, 35], color: '#f97316', size: 7 },
+  { name: 'India', coordinates: [78, 22], color: '#16aaf2', size: 7 },
+  { name: 'China', coordinates: [117, -30], color: '#f900e6', size: 7 },
   { name: 'Indonesia', coordinates: [120, -5], color: '#ef4444', size: 6 },
-  { name: 'Nigeria', coordinates: [8, 9], color: '#ef4444', size: 6 },
-  { name: 'Botswana', coordinates: [24, -72], color: '#1630a3', size: 7 },
-  { name: 'Malawi', coordinates: [47, -19], color: '#9316f9', size: 7 },
-  { name: 'Malaysia', coordinates: [132, 70], color: '#fb0404', size: 6 },
+  { name: 'Nigeria', coordinates: [8, 9], color: '#ef43d0', size: 6 },
+  { name: 'Botswana', coordinates: [135, -74], color: '#1630a3', size: 7 },
+  { name: 'Malawi', coordinates: [27, -25], color: '#9316f9', size: 7 },
+  { name: 'Malaysia', coordinates: [52, 60], color: '#fb0404', size: 6 },
   { name: 'Japan', coordinates: [138, 36], color: '#44caef', size: 6 }
 ];
 
