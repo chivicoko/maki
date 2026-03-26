@@ -120,7 +120,7 @@ export default function KanbanBoard() {
       ? localTasks
       : localTasks.filter((t) => t.projectId === selectedProject);
 
-  console.log("filteredTasks: ", filteredTasks);
+  // console.log("filteredTasks: ", filteredTasks);
 
   const mutation = useMutation({
     mutationFn: (task: Task) =>

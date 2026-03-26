@@ -1,11 +1,12 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema } from "@/lib/validators";
 import { z } from "zod";
 import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import {
   Dialog,
@@ -28,10 +29,22 @@ import {
 
 type FormData = z.infer<typeof taskSchema>;
 
-export default function CreateTaskModal({ open, setOpen }: { open: boolean; setOpen: (val: boolean) => void }) {
+export default function CreateTaskModal({
+  open,
+  setOpen,
+}: {
+  open: boolean;
+  setOpen: (val: boolean) => void;
+}) {
   const queryClient = useQueryClient();
 
-  const form = useForm<FormData>({
+  const {
+    register,
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors, isDirty },
+  } = useForm<FormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       title: "",
@@ -42,14 +55,58 @@ export default function CreateTaskModal({ open, setOpen }: { open: boolean; setO
   });
 
   const mutation = useMutation({
-    mutationFn: (data: FormData) =>
-      axios.post("/api/tasks", data),
+    mutationFn: async (data: FormData) => {
+      const res = await axios.post("/api/tasks", data);
+      return res.data;
+    },
+
+    // ✅ Optimistic update
+    onMutate: async (newTask) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+
+      const previous = queryClient.getQueryData<any[]>(["tasks"]);
+
+      queryClient.setQueryData<any[]>(["tasks"], (old = []) => [
+        ...old,
+        {
+          id: crypto.randomUUID(),
+          ...newTask,
+        },
+      ]);
+
+      return { previous };
+    },
+
+    // ✅ Success
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Task created successfully ✅");
       setOpen(false);
-      form.reset();
+      reset();
+    },
+
+    // ✅ Error rollback
+    onError: (_err, _data, context) => {
+      toast.error("Failed to create task ❌");
+
+      if (context?.previous) {
+        queryClient.setQueryData(["tasks"], context.previous);
+      }
+    },
+
+    // ✅ Always refetch
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
+
+  const onSubmit = (data: FormData) => {
+    if (!isDirty) {
+      toast("Nothing to create");
+      return;
+    }
+
+    mutation.mutate(data);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -58,54 +115,96 @@ export default function CreateTaskModal({ open, setOpen }: { open: boolean; setO
           <DialogTitle>Create Task</DialogTitle>
         </DialogHeader>
 
-        <form
-          onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
-          className="space-y-4"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* TITLE */}
-          <div>
+          <div className="space-y-1">
             <Label>Title</Label>
-            <Input {...form.register("title")} placeholder="Task title" />
+            <Input {...register("title")} placeholder="Task title" />
+            {errors.title && (
+              <p className="text-sm text-red-500">
+                {errors.title.message}
+              </p>
+            )}
           </div>
 
           {/* STATUS */}
-          <div>
+          <div className="space-y-1">
             <Label>Status</Label>
-            <Select {...form.register("status")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todo">Todo</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todo">Todo</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.status && (
+              <p className="text-sm text-red-500">
+                {errors.status.message}
+              </p>
+            )}
           </div>
 
           {/* PRIORITY */}
-          <div>
+          <div className="space-y-1">
             <Label>Priority</Label>
-            <Select {...form.register("priority")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-              </SelectContent>
-            </Select>
+            <Controller
+              control={control}
+              name="priority"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.priority && (
+              <p className="text-sm text-red-500">
+                {errors.priority.message}
+              </p>
+            )}
           </div>
 
           {/* DESCRIPTION */}
-          <div>
+          <div className="space-y-1">
             <Label>Description</Label>
-            <Textarea {...form.register("description")} placeholder="Task description" />
+            <Textarea
+              {...register("description")}
+              placeholder="Task description"
+            />
+            {errors.description && (
+              <p className="text-sm text-red-500">
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
-          <Button type="submit" className="w-full">
-            Create Task
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={mutation.isPending || !isDirty}
+          >
+            {mutation.isPending ? "Creating..." : "Create Task"}
           </Button>
         </form>
       </DialogContent>

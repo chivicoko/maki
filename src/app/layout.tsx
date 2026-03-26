@@ -4,6 +4,8 @@ import './globals.css';
 import { Providers } from '@/providers';
 import { Toaster } from '@/components/ui/sonner';
 import { DndProviderWrapper } from '@/components/providers/dnd-provider-wrapper';
+import Sidebar from '@/components/layout/sidebar';
+import Topbar from '@/components/layout/topbar';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Kraft360 App',
-  description: 'This is my Kraft App - Skill-up project.',
+  title: 'Maki App',
+  description: 'This is my Maki App - Skill-up project.',
 };
 
 export default function RootLayout({
@@ -30,7 +32,15 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <DndProviderWrapper>
-            {children}
+            <div className="flex bg-[#eceff1]">
+              <Sidebar />
+              <div className="flex-1 flex flex-col">
+                <Topbar />
+                <main className="p-6 overflow-auto">
+                  {children}
+                </main>
+              </div>
+            </div>
           </DndProviderWrapper>
         </Providers>
         <Toaster position="top-center" richColors closeButton />

@@ -1,4 +1,4 @@
-describe('Kraft360 - Cypress Fundamentals', () => {
+describe('Maki - Cypress Fundamentals', () => {
   it('Testing cypress for the first time', () => {
     cy.visit('/')
     expect(true).to.equal(true)

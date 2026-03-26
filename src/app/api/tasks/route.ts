@@ -1,21 +1,17 @@
+import { Task } from "../../../../types"
+
 // src/app/api/tasks/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { tasks } from "@/lib/data";
+declare global { var tasks: Task[] }
+
+if (!globalThis.tasks) globalThis.tasks = []
 
 export async function GET() {
-  return NextResponse.json(tasks);
+  return Response.json(globalThis.tasks)
 }
 
-export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  const newTask = {
-    ...body,
-    id: crypto.randomUUID(),
-    createdAt: new Date().toISOString(),
-  };
-
-  tasks.push(newTask);
-
-  return NextResponse.json(newTask, { status: 201 });
+export async function POST(req: Request) {
+  const body = await req.json()
+  const newTask: Task = { ...body, id: crypto.randomUUID(), createdAt: new Date().toISOString() }
+  globalThis.tasks.push(newTask)
+  return Response.json(newTask, { status: 201 })
 }
