@@ -10,15 +10,30 @@ import {
 } from 'react-simple-maps';
 import { Card, CardContent } from '@/components/ui/card';
 
+
+type Coordinates = [number, number];
+
+type MapPoint = {
+  name: string;
+  coordinates: Coordinates;
+  color: string;
+  size: number;
+};
+
+type MapCenter = {
+  name: string;
+  coordinates: Coordinates;
+};
+
 /* =========================
    DATA
 ========================= */
 const geoUrl =
   'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
-const center = { name: 'Europe Hub', coordinates: [10, 50] };
+const center: MapCenter = { name: 'Europe Hub', coordinates: [10, 50] };
 
-const points = [
+const points: MapPoint[] = [
   { name: 'USA', coordinates: [-100, 40], color: '#f97316', size: 8 },
   { name: 'Canada', coordinates: [-170, 65], color: '#af2d2d', size: 7 },
   { name: 'Brazil', coordinates: [-70, -40], color: '#16a34a', size: 7 },
@@ -35,7 +50,13 @@ const points = [
 /* =========================
    CURVES
 ========================= */
-const CurvedLines = ({ points, center }: any) => {
+const CurvedLines = ({
+  points,
+  center
+}: {
+  points: MapPoint[];
+  center: MapCenter;
+}) => {
   const { projection } = useMapContext();
 
   if (!projection) return null;
@@ -91,7 +112,7 @@ const GeographyFlowMap = () => {
   }>(null);
 
   return (
-    <Card className="flex-2/3 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] relative">
+    <Card className="w-full flex-2 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] relative">
       <CardContent className="px-3">
         {/* TITLE */}
         <h4 className="text-[14px] md:text-[16px] font-semibold mb-2">

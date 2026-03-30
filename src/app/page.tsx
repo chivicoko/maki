@@ -69,14 +69,14 @@ export default function Home() {
   return (
     <main className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="w-full flex items-center justify-between">
+        <div className="w-full flex items-center justify-between flex-wrap">
           {/* TITLE */}
           <h2 className="text-[20px] sm:text-[25px] md:text-[30px] font-semibold">
             Alerts Overview
           </h2>
 
           {/* ACTIONS */}
-          <ButtonGroup>
+          <ButtonGroup className="flex items-center flex-wrap">
             <ButtonGroup>
               <Button variant="outline" onClick={() => toast.info("Dashboard button clicked.")}>
                 <LayoutDashboard className="w-3.5 h-3.5 mr-1" />
@@ -164,19 +164,20 @@ export default function Home() {
         <GuagePieChart />
       </div>
 
-      <div className="w-full flex items-start gap-3">
+      <div className="w-full flex flex-col md:flex-row items-start md:justify-between gap-3 flex-wrap">
         <WeeklyAlertsBarChart />
         <WeeklyAlertsStatusBarChart />
       </div>
-      <div className="w-full flex items-start gap-3">
+
+      <div className="w-full flex flex-col md:flex-row items-start md:justify-between gap-3 flex-wrap">
         <GeographyFlowMap />
         <SeverityTable />
       </div>
       
       <ShipmentAccuracyLineChart />
       
-      <div className="w-full flex items-start gap-3">
-        <div className="flex-1/2">
+      <div className="w-full flex flex-col md:flex-row items-start md:justify-between gap-3 flex-wrap">
+        <div className="w-full flex-1">
           <SupplierLineChart
             data={data}
             title='Volume Adherence'
@@ -187,7 +188,7 @@ export default function Home() {
             targetDiff="-5% below"
           />
         </div>
-        <div className="flex-1/2">
+        <div className="w-full flex-1">
           <SupplierLineChart
             data={data2}
             title='Avg Booking Confirmation Lead'

@@ -59,7 +59,7 @@ const invoices = [
 
 const SeverityTable = () => {
   return (
-    <Card className="flex-1/3 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] relative">
+    <Card className="w-full flex-1 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.05)] relative">
         <CardContent className="p-3">
             {/* TITLE */}
             <h4 className="text-[14px] md:text-[16px] font-semibold mb-1">Severity Table</h4>

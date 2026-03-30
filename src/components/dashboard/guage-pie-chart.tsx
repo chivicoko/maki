@@ -81,13 +81,13 @@ const GuagePieChart = () => {
   const activeIndex = getActiveIndex(currentValue);
 
   return (
-    <Card className="p-2 md:p-3 rounded-xl bg-white">
+    <Card className="p-2 sm:p-3 rounded-xl bg-white">
       <CardContent className="p-3">
-        <div className="flex flex-col md:flex-row gap-3">
+        <div className="flex flex-col lg:flex-row gap-3">
           {/* ================= LEFT ================= */}
           <div className="flex-1 flex flex-col items-center">
             <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
-              <h4 className="text-[14px] md:text-[16px] font-semibold">
+              <h4 className="text-[14px] sm:text-[16px] font-semibold">
                 PO & Stock Consumption
               </h4>
 
@@ -149,11 +149,11 @@ const GuagePieChart = () => {
           </div>
 
           {/* DIVIDER */}
-          <div className="hidden md:block w-px bg-border" />
+          <div className="hidden sm:block w-px bg-border" />
 
           {/* ================= RIGHT ================= */}
-          <div className="flex-[2] mt-4 md:mt-0">
-            <p className="text-[14px] md:text-[16px] font-semibold mb-1 md:mb-2">Alert Context</p>
+          <div className="flex-1 xl:flex-[2] mt-4 sm:mt-0">
+            <p className="text-[14px] sm:text-[16px] font-semibold mb-1 sm:mb-2">Alert Context</p>
 
             <div className="border-b mb-2" />
 

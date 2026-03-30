@@ -98,7 +98,7 @@ const ShipmentAccuracyLineChart = () => {
               />
 
               {/* TOOLTIP */}
-              <Tooltip formatter={(val: number) => `${val}%`} />
+              <Tooltip formatter={(val) => [`${Number(val ?? 0)}%`, 'Accuracy']} />
 
               {/* LINE */}
               <Line

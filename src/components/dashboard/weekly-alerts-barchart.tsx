@@ -15,7 +15,7 @@ const data = [
 
 const WeeklyAlertsBarChart = () => {
   return (
-    <Card className="flex-1/2 rounded-xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
+    <Card className="w-full flex-1 rounded-xl bg-white shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
       <CardContent className="p-2 md:p-3">
         {/* Title */}
         <h4 className='mb-2 text-[14px] md:text-[16px] font-semibold'>

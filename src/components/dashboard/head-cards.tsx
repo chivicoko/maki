@@ -23,7 +23,7 @@ const items = [
 
 const HeadCards = () => {
   return (
-    <div className="flex flex-wrap gap-[13px]">
+    <div className="flex flex-wrap gap-1.5 md:gap-[13px]">
       {items.map((item, index) => {
         const Icon = item.icon;
 
@@ -31,11 +31,11 @@ const HeadCards = () => {
           <div
             key={index}
             className="
-              bg-white rounded-[10px] p-4
+              bg-white rounded-[10px] p-2 sm:p-4
               flex flex-col items-center justify-center text-center
               gap-1.5 transition-all duration-200
 
-              w-[calc(50%-6.5px)] 
+              w-[calc(50%-5px)] 
               sm:w-[calc(33.333%-8.7px)] 
               md:w-[calc(25%-9.75px)] 
               lg:w-[calc(14.285%-11.2px)]
