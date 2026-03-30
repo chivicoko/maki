@@ -5,7 +5,7 @@ import { useTaskStore } from "@/store/task-store";
 import { useUIStore } from "@/store/ui-store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Task } from "../../../types";
 import { Grip } from "lucide-react";
@@ -20,22 +20,17 @@ const ITEM_TYPE = "TASK";
 // ✅ TASK CARD
 function TaskCard({ task }: { task: Task }) {
   const { setTask } = useTaskStore();
-
   const ref = useRef<HTMLDivElement | null>(null);
 
-  const [{ isDragging }, drag] = useDrag(() => ({
+  const dragItem = useMemo(() => task, [task]);
+  const [{ isDragging }, drag] = useDrag({
     type: ITEM_TYPE,
-    item: task,
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
+    item: dragItem,
+    collect: (monitor) => ({ isDragging: monitor.isDragging() }),
+  });
 
-  // ✅ attach drag manually
   useEffect(() => {
-    if (ref.current) {
-      drag(ref);
-    }
+    if (ref.current) drag(ref);
   }, [drag]);
 
   return (
@@ -107,40 +102,46 @@ function Column({
 // ✅ MAIN BOARD
 export default function KanbanBoard() {
   const { data: tasks = [] } = useTasks();
-  const [localTasks, setLocalTasks] = useState<Task[]>([]);
   const { selectedProject } = useUIStore();
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    setLocalTasks(tasks);
-  }, [tasks]);
-
   const filteredTasks =
     selectedProject === "all"
-      ? localTasks
-      : localTasks.filter((t) => t.projectId === selectedProject);
-
-  // console.log("filteredTasks: ", filteredTasks);
+      ? tasks
+      : tasks.filter((t: Task) => t.projectId === selectedProject);
 
   const mutation = useMutation({
     mutationFn: (task: Task) =>
       axios.put(`/api/tasks/${task.id}`, task),
+
+    onMutate: async (updatedTask) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+
+      const previousTasks = queryClient.getQueryData<Task[]>(["tasks"]);
+
+      queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
+        old.map((t) =>
+          t.id === updatedTask.id ? updatedTask : t
+        )
+      );
+
+      return { previousTasks };
+    },
+
+    onError: (_err, _updatedTask, context) => {
+      if (context?.previousTasks) {
+        queryClient.setQueryData(["tasks"], context.previousTasks);
+      }
+    },
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
   });
 
-  // ✅ DROP HANDLER (SUPER CLEAN)
   const handleDrop = (task: Task, newStatus: Task["status"]) => {
     if (task.status === newStatus) return;
 
-    // update UI instantly
-    setLocalTasks(prev =>
-      prev.map(t => t.id === task.id ? { ...t, status: newStatus } : t)
-    );
-
-    // sync backend
     mutation.mutate({ ...task, status: newStatus });
   };
 
@@ -150,7 +151,7 @@ export default function KanbanBoard() {
         <Column
           key={col}
           status={col}
-          tasks={filteredTasks.filter((t) => t.status === col)}
+          tasks={filteredTasks.filter((t: Task) => t.status === col)}
           onDropTask={handleDrop}
         />
       ))}

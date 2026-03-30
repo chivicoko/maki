@@ -69,7 +69,6 @@ export default function TaskDrawer() {
     const mutation = useMutation({
         mutationFn: async (updated: FormData & { id: string }) => {
             const res = await axios.put(`/api/tasks/${updated.id}`, updated);
-            console.log("res.data: ", res.data);
             return res.data;
         },
 
@@ -77,8 +76,6 @@ export default function TaskDrawer() {
             await queryClient.cancelQueries({ queryKey: ["tasks"] });
 
             const previous = queryClient.getQueryData<Task[]>(["tasks"]);
-            console.log("previous: ", previous);
-            console.log("updatedTask: ", updatedTask);
 
             queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
                 old.map((t) =>
@@ -91,7 +88,6 @@ export default function TaskDrawer() {
 
         onSuccess: (serverTask) => {
             toast.success("Task updated successfully ✅");
-            console.log("SERVER RESPONSE:", serverTask);
 
             queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
                 old.map((t) =>

@@ -198,7 +198,7 @@ export default function Home() {
             target="29D"
             targetDiff="On Track"
             getDotProps={({ index }) => ({
-              r: index === 0 ? 6 : 4,
+              r: index === 0 ? 6 : 5,
               fill: index === 0 ? '#198a02' : '#fff',
               // fill: payload.value === Math.min(...data2.map(d => d.value)) ? '#198a02' : '#fff',
               stroke: '#198a02'

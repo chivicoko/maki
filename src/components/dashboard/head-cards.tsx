@@ -40,7 +40,7 @@ const HeadCards = () => {
               md:w-[calc(25%-9.75px)] 
               lg:w-[calc(14.285%-11.2px)]
 
-              border border-transparent
+              border border-gray-300
               hover:-translate-y-[2px] 
               hover:shadow-[0_4px_12px_rgba(0,0,0,0.08)]
             "
