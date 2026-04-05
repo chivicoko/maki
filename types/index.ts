@@ -9,17 +9,29 @@ export interface User {
   avatar: string;
 }
 
-export interface Task {
+// export interface Task {
+//   id: string;
+//   title: string;
+//   description?: string;
+//   status: Status;
+//   priority: Priority;
+//   dueDate?: string;
+//   assigneeId?: string;
+//   projectId: string;
+//   createdAt: string;
+// }
+export type Task = {
   id: string;
   title: string;
   description?: string;
-  status: Status;
-  priority: Priority;
-  dueDate?: string;
-  assigneeId?: string;
+  status: "todo" | "in-progress" | "done";
+  priority: "low" | "medium" | "high";
   projectId: string;
+  labels: string[];
+  assignees: string[];
+  dueDate: string;
   createdAt: string;
-}
+};
 
 export interface Project {
   id: string;
