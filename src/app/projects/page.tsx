@@ -15,6 +15,11 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const page = () => {
   const [open, setOpen] = useState(false);
@@ -44,10 +49,17 @@ const page = () => {
             </SelectContent>
           </Select>
 
-          <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
-            <Plus className="size-4" />
-            New Task
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+                <Plus className="size-4" />
+                New Task
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Click to create a new task</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
       </div>
 

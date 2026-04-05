@@ -6,6 +6,11 @@ import { LayoutDashboard, FolderKanban, Users, LucideAlignHorizontalDistributeCe
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const links = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -20,7 +25,7 @@ export default function Sidebar() {
     <aside className="w-fit md:w-48 min-h-screen bg-white border-r py-4 px-1.5 md:p-4">
       <h1 className="text-xl font-bold mb-12 flex items-center justify-center md:justify-start gap-1">
         <LucideAlignHorizontalDistributeCenter />
-        <span className="hidden md:inline">TeamFlow</span>
+        <span className="hidden md:inline">Maki</span>
       </h1>
 
       <nav className="space-y-2">
@@ -28,20 +33,25 @@ export default function Sidebar() {
           const Icon = link.icon;
 
           return (
-            <Link
-              key={link.href}
-              href={link.href}
-              title={link.label}
-              className={clsx(
-                "flex items-center gap-3 px-1.5 py-1.5 md:px-3 md:py-2 rounded-lg transition",
-                pathname === link.href
-                  ? "bg-primary text-white"
-                  : "hover:bg-gray-100"
-              )}
-            >
-              <Icon className="size-5" />
-              <span className="hidden md:inline">{link.label}</span>
-            </Link>
+            <Tooltip key={link.href}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={link.href}
+                  className={clsx(
+                    "flex items-center gap-3 px-1.5 py-1.5 md:px-3 md:py-2 rounded-lg transition",
+                    pathname === link.href
+                      ? "bg-primary text-white"
+                      : "hover:bg-gray-100"
+                  )}
+                >
+                  <Icon className="size-5" />
+                  <span className="hidden md:inline">{link.label}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>{link.label}</p>
+              </TooltipContent>
+            </Tooltip>
           );
         })}
       </nav>
