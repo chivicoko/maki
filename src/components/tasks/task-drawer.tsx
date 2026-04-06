@@ -6,7 +6,6 @@ import { Task } from "../../../types";
 import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-
 import {
   Sheet,
   SheetContent,
@@ -24,10 +23,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-
 import { activities } from "@/lib/data";
 import ActivityFeed from "../dashboard/activity-feed";
-
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { taskSchema } from "@/lib/validators";
@@ -35,7 +32,6 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
 import { Trash2Icon, XCircleIcon, XIcon } from "lucide-react";
-
 import {
   Dialog,
   DialogContent,
@@ -43,6 +39,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 
 type FormData = z.infer<typeof taskSchema>;
 
@@ -116,11 +119,18 @@ export default function TaskDrawer() {
   const addAssignee = () => {
     const value = assigneeInput.trim();
     if (!value) return;
-    if (assignees.includes(value)) return;
 
-    setValue("assignees", [...assignees, value], {
-      shouldDirty: true,
-    });
+    const exists = assignees.some(
+      (a) => a.name.toLowerCase() === value.toLowerCase()
+    );
+
+    if (exists) return;
+
+    setValue(
+      "assignees",
+      [...assignees, { name: value }],
+      { shouldDirty: true }
+    );
 
     setAssigneeInput("");
   };
@@ -128,7 +138,7 @@ export default function TaskDrawer() {
   const removeAssignee = (name: string) => {
     setValue(
       "assignees",
-      assignees.filter((a) => a !== name),
+      assignees.filter((a) => a.name !== name),
       { shouldDirty: true }
     );
   };
@@ -313,14 +323,37 @@ export default function TaskDrawer() {
                   {assignees.map((assignee, idx) => (
                     <Badge
                       key={idx}
-                      className="bg-gray-200 text-foreground capitalize pr-0.5"
+                      className="bg-gray-200 text-foreground capitalize px-1 gap-2"
                     >
-                      <span>{assignee}</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Avatar className="size-5">
+                            {assignee.avatar ? (
+                              <AvatarImage
+                                src={assignee.avatar}
+                                alt={assignee.name}
+                              />
+                            ) : null}
+
+                            <AvatarFallback className="text-[10px]">
+                              {getInitials(assignee.name)}
+                            </AvatarFallback>
+                          </Avatar>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                          <p>{assignee.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <span>{assignee.name}</span>
+
                       <Button
-                        onClick={() => removeAssignee(assignee)}
-                        className="cursor-pointer p-0 bg-transparent text-destructive"
+                        type="button"
+                        onClick={() => removeAssignee(assignee.name)}
+                        className="cursor-pointer p-0 bg-transparent text-destructive h-auto"
                       >
-                        <XCircleIcon />
+                        <XCircleIcon className="w-4 h-4" />
                       </Button>
                     </Badge>
                   ))}

@@ -66,8 +66,8 @@ export default function CreateTaskModal({
   const [labelInput, setLabelInput] = useState("");
   const [assigneeInput, setAssigneeInput] = useState("");
 
-  const labels = watch("labels");
-  const assignees = watch("assignees");
+  const labels = watch("labels") ?? [];
+  const assignees = watch("assignees") ?? [];
 
   const addLabel = () => {
     const value = labelInput.trim();
@@ -90,11 +90,19 @@ export default function CreateTaskModal({
 
   const addAssignee = () => {
     const value = assigneeInput.trim();
-    if (!value || assignees.includes(value)) return;
+    if (!value) return;
 
-    setValue("assignees", [...assignees, value], {
-      shouldDirty: true,
-    });
+    const exists = assignees.some(
+      (a) => a.name.toLowerCase() === value.toLowerCase()
+    );
+
+    if (exists) return;
+
+    setValue(
+      "assignees",
+      [...assignees, { name: value }],
+      { shouldDirty: true }
+    );
 
     setAssigneeInput("");
   };
@@ -102,7 +110,7 @@ export default function CreateTaskModal({
   const removeAssignee = (name: string) => {
     setValue(
       "assignees",
-      assignees.filter((a) => a !== name),
+      assignees.filter((a) => a.name !== name),
       { shouldDirty: true }
     );
   };
@@ -118,13 +126,22 @@ export default function CreateTaskModal({
 
       const previous = queryClient.getQueryData<any[]>(["tasks"]);
 
-      queryClient.setQueryData<any[]>(["tasks"], (old = []) => [
+      queryClient.setQueryData<FormData[]>(["tasks"], (old = []) => [
         ...old,
         {
           id: crypto.randomUUID(),
           createdAt: new Date().toISOString(),
           ...newTask,
         },
+
+        // {
+        //   id: crypto.randomUUID(),
+        //   createdAt: new Date().toISOString(),
+        //   dueDate: newTask.dueDate || "",
+        //   labels: newTask.labels || [],
+        //   assignees: newTask.assignees || [],
+        //   ...newTask,
+        // },
       ]);
 
       return { previous };
@@ -133,7 +150,16 @@ export default function CreateTaskModal({
     onSuccess: () => {
       toast.success("Task created successfully ✅");
       setOpen(false);
-      reset();
+      reset({
+        title: "",
+        status: "todo",
+        priority: "medium",
+        description: "",
+        projectId: "",
+        labels: [],
+        assignees: [],
+        dueDate: "",
+      });
       setLabelInput("");
       setAssigneeInput("");
     },
@@ -231,12 +257,12 @@ export default function CreateTaskModal({
             <div className="flex flex-wrap gap-2">
               {assignees.map((assignee, idx) => (
                 <Badge key={idx} className="bg-gray-200 text-foreground pr-1 capitalize">
-                  {assignee}
+                  {assignee.name}
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => removeAssignee(assignee)}
+                    onClick={() => removeAssignee(assignee.name)}
                     className="h-4 w-4 ml-1"
                   >
                     <XCircleIcon className="w-3 h-3" />

@@ -9,7 +9,16 @@ export const seedTasks: Task[] = [
     priority: "high",
     projectId: "project-alpha",
     labels: ["frontend", "bug"],
-    assignees: ["Victor", "Mark"],
+    assignees: [
+        {
+            name: "Victor",
+            avatar: "",
+        },
+        {
+            name: "Mark",
+            avatar: "",
+        },
+    ],
     dueDate: "2026-04-12",
     createdAt: new Date("2026-04-01").toISOString(),
   },
@@ -21,7 +30,16 @@ export const seedTasks: Task[] = [
     priority: "medium",
     projectId: "project-alpha",
     labels: ["ui", "drawer"],
-    assignees: ["Victor", "Mark"],
+    assignees: [
+        {
+            name: "Victor",
+            avatar: "/avatars/victor.jpg",
+        },
+        {
+            name: "Mark",
+            avatar: "",
+        },
+    ],
     dueDate: "2026-04-13",
     createdAt: new Date("2026-04-02").toISOString(),
   },
@@ -33,7 +51,16 @@ export const seedTasks: Task[] = [
     priority: "high",
     projectId: "project-beta",
     labels: ["frontend", "feature"],
-    assignees: ["Victor", "Mark"],
+    assignees: [
+        {
+            name: "Victor",
+            avatar: "",
+        },
+        {
+            name: "Mark",
+            avatar: "",
+        },
+    ],
     dueDate: "2026-04-14",
     createdAt: new Date("2026-04-03").toISOString(),
   },
@@ -45,7 +72,16 @@ export const seedTasks: Task[] = [
     priority: "high",
     projectId: "project-beta",
     labels: ["react-query", "cache"],
-    assignees: ["Victor", "Mark"],
+    assignees: [
+        {
+            name: "Victor",
+            avatar: "",
+        },
+        {
+            name: "Mark",
+            avatar: "",
+        },
+    ],
     dueDate: "2026-04-15",
     createdAt: new Date("2026-04-04").toISOString(),
   },
@@ -57,7 +93,16 @@ export const seedTasks: Task[] = [
     priority: "low",
     projectId: "project-alpha",
     labels: ["bugfix", "api"],
-    assignees: ["Victor", "Mark"],
+    assignees: [
+        {
+            name: "Victor",
+            avatar: "",
+        },
+        {
+            name: "Mark",
+            avatar: "",
+        },
+    ],
     dueDate: "2026-04-16",
     createdAt: new Date("2026-04-05").toISOString(),
   },

@@ -20,6 +20,11 @@ export interface User {
 //   projectId: string;
 //   createdAt: string;
 // }
+type Assignee = {
+  name: string;
+  avatar?: string;
+};
+
 export type Task = {
   id: string;
   title: string;
@@ -28,7 +33,7 @@ export type Task = {
   priority: "low" | "medium" | "high";
   projectId: string;
   labels: string[];
-  assignees: string[];
+  assignees: Assignee[];
   dueDate: string;
   createdAt: string;
 };

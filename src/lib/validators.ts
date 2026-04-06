@@ -16,8 +16,14 @@ export const taskSchema = z.object({
   projectId: z.string().min(1, "Project is required"),
 
   labels: z.array(z.string()).catch([]),
-
-  assignees: z.array(z.string()).catch([]),
+  assignees: z
+    .array(
+      z.object({
+        name: z.string().min(1, "Assignee name is required"),
+        avatar: z.string().optional(),
+      })
+    )
+    .catch([]),
 
   dueDate: z.string().optional(),
 
