@@ -1,4 +1,4 @@
-import { Task } from "../../../../types";
+import { Task } from "../../../types";
 
 export const seedTasks: Task[] = [
   {
@@ -7,7 +7,7 @@ export const seedTasks: Task[] = [
     description: "Create app router folders and shared components",
     status: "todo",
     priority: "high",
-    projectId: "project-alpha",
+    projectId: "project-dashboard",
     labels: ["frontend", "bug"],
     assignees: [
         {
@@ -28,7 +28,7 @@ export const seedTasks: Task[] = [
     description: "Build shadcn drawer for task updates",
     status: "in-progress",
     priority: "medium",
-    projectId: "project-alpha",
+    projectId: "project-dashboard",
     labels: ["ui", "drawer"],
     assignees: [
         {
@@ -49,7 +49,7 @@ export const seedTasks: Task[] = [
     description: "Use react-dnd for kanban movement",
     status: "done",
     priority: "high",
-    projectId: "project-beta",
+    projectId: "project-mobile",
     labels: ["frontend", "feature"],
     assignees: [
         {
@@ -70,7 +70,7 @@ export const seedTasks: Task[] = [
     description: "Use React Query mutation lifecycle",
     status: "todo",
     priority: "high",
-    projectId: "project-beta",
+    projectId: "project-mobile",
     labels: ["react-query", "cache"],
     assignees: [
         {
@@ -91,7 +91,7 @@ export const seedTasks: Task[] = [
     description: "Rollback cache on mutation error",
     status: "in-progress",
     priority: "low",
-    projectId: "project-alpha",
+    projectId: "project-analytics",
     labels: ["bugfix", "api"],
     assignees: [
         {

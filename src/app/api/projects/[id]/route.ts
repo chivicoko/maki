@@ -1,7 +1,6 @@
-// // src/app/api/tasks/[id]/route.ts
-// New implementation
+// app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
-import { tasks } from "../data";
+import { projects } from "../data";
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,16 +22,16 @@ export async function GET(
 
   await delay(randomDelay());
 
-  const task = tasks.find((t) => t.id === id);
+  const project = projects.find((p) => p.id === id);
 
-  if (!task) {
+  if (!project) {
     return NextResponse.json(
-      { error: "Task not found" },
+      { error: "Project not found" },
       { status: 404 }
     );
   }
 
-  return NextResponse.json({ task });
+  return NextResponse.json({ project });
 }
 
 export async function PUT(
@@ -46,29 +45,32 @@ export async function PUT(
 
   if (randomFailure()) {
     return NextResponse.json(
-      { error: "Failed to update task" },
+      { error: "Failed to update project" },
       { status: 500 }
     );
   }
 
-  const index = tasks.findIndex((t) => t.id === id);
+  const index = projects.findIndex((p) => p.id === id);
 
   if (index === -1) {
     return NextResponse.json(
-      { error: "Task not found" },
+      { error: "Project not found" },
       { status: 404 }
     );
   }
 
-  tasks[index] = {
-    ...tasks[index],
+    projects[index] = {
+    ...projects[index],
     ...body,
+    id: body.name
+        ? body.name.toLowerCase().replace(/\s+/g, "-")
+        : projects[index].id,
     updatedAt: new Date().toISOString(),
-  };
+    };
 
   return NextResponse.json({
-    task: tasks[index],
-    message: "Task updated successfully",
+    project: projects[index],
+    message: "Project updated successfully",
   });
 }
 
@@ -80,20 +82,20 @@ export async function DELETE(
 
   await delay(randomDelay());
 
-  const index = tasks.findIndex((t) => t.id === id);
+  const index = projects.findIndex((p) => p.id === id);
 
   if (index === -1) {
     return NextResponse.json(
-      { error: "Task not found" },
+      { error: "Project not found" },
       { status: 404 }
     );
   }
 
-  const deletedTask = tasks[index];
-  tasks.splice(index, 1);
+  const deletedProject = projects[index];
+  projects.splice(index, 1);
 
   return NextResponse.json({
-    task: deletedTask,
-    message: "Task deleted successfully",
+    project: deletedProject,
+    message: "Project deleted successfully",
   });
 }

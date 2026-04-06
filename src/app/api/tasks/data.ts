@@ -1,5 +1,5 @@
+import { seedTasks } from "@/lib/seed/tasks";
 import { Task } from "../../../../types";
-import { seedTasks } from "./seed";
 
 declare global {
   var tasks: Task[] | undefined;

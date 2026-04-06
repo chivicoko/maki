@@ -380,9 +380,9 @@ export default function TaskDrawer() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center justify-between gap-2">
                 {/* STATUS */}
-                <div className="space-y-1">
+                <div className="flex-1/2 space-y-1">
                   <Label>Status</Label>
                   <Controller
                     control={control}
@@ -392,7 +392,7 @@ export default function TaskDrawer() {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -411,7 +411,7 @@ export default function TaskDrawer() {
                 </div>
 
                 {/* PRIORITY */}
-                <div className="space-y-1">
+                <div className="flex-1/2 space-y-1">
                   <Label>Priority</Label>
                   <Controller
                     control={control}
@@ -421,7 +421,7 @@ export default function TaskDrawer() {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select priority" />
                         </SelectTrigger>
                         <SelectContent>
@@ -492,14 +492,12 @@ export default function TaskDrawer() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              <h3 className="font-semibold">{task?.title}</h3>
+              <strong>{task?.title}</strong>
             </DialogTitle>
-            <DialogDescription>
-              <div className="flex flex-col items-center gap-2 mt-5">
-                <Trash2Icon className="text-red-600" />
-                <p className="mt-2 text-center">Are you sure you want to delete this task?</p>
-                <i className="font-semibold">This action cannot be undone.</i>
-              </div>
+            <DialogDescription className="flex flex-col items-center gap-2 mt-5">
+              <Trash2Icon className="text-red-600" />
+              <span className="mt-2 text-center text-foreground">Are you sure you want to delete this task?</span>
+              <i className="font-semibold text-foreground">This action cannot be undone.</i>
             </DialogDescription>
           </DialogHeader>
 

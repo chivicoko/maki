@@ -9,11 +9,10 @@ import { useEffect, useMemo, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Task } from "../../../types";
 import { Grip, HandIcon } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const columns: Task["status"][] = ["todo", "in-progress", "done"];
 
+const columns: Task["status"][] = ["todo", "in-progress", "done"];
 
 // ✅ DRAG TYPE
 const ITEM_TYPE = "TASK";
@@ -60,10 +59,14 @@ function Column({
   status,
   tasks,
   onDropTask,
+  isPending,
+  isError,
 }: {
   status: Task["status"];
   tasks: Task[];
   onDropTask: (task: Task, status: Task["status"]) => void;
+  isPending: boolean;
+  isError: boolean;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -87,36 +90,43 @@ function Column({
     <div
       ref={ref}
       className={`p-4 rounded-xl min-h-[300px] ${
-        isOver ? "bg-blue-100 border-2 border-blue-300 border-dashed " : "bg-white"
+        isOver
+          ? "bg-blue-100 border-2 border-blue-300 border-dashed"
+          : "bg-white"
       }`}
     >
       <h2 className="font-bold mb-4 capitalize">
         {status.replace("-", " ")}
       </h2>
 
-      {tasks?.length > 0 ? tasks.map((task) => (
-        <TaskCard key={task.id} task={task} />
-      ))
-      : 
-      // <Card className="w-full max-w-xs">
-      //   <CardHeader>
-      //     <Skeleton className="h-4 w-2/3" />
-      //     <Skeleton className="h-4 w-1/2" />
-      //   </CardHeader>
-      //   <CardContent>
-      //     <Skeleton className="aspect-video w-full" />
-      //   </CardContent>
-      // </Card>
-
-      <div className="flex items-center gap-4">
+      {/* LOADING */}
+      {isPending && (
         <div className="space-y-2">
-          <Skeleton className="h-12 w-[380px]" />
-          <Skeleton className="h-12 w-[380px]" />
-          <Skeleton className="h-12 w-[380px]" />
-          <Skeleton className="h-12 w-[380px]" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
+          <Skeleton className="h-12 w-full" />
         </div>
-      </div>
-    }
+      )}
+
+      {/* ERROR */}
+      {!isPending && isError && (
+        <p className="text-sm text-red-500">
+          Failed to load tasks
+        </p>
+      )}
+
+      {/* EMPTY */}
+      {!isPending && !isError && tasks.length === 0 && (
+        <p className="text-sm text-gray-400">No tasks here</p>
+      )}
+
+      {/* SUCCESS */}
+      {!isPending &&
+        !isError &&
+        tasks.length > 0 &&
+        tasks.map((task) => (
+          <TaskCard key={task.id} task={task} />
+        ))}
     </div>
   );
 }
@@ -124,8 +134,13 @@ function Column({
 
 // ✅ MAIN BOARD
 export default function KanbanBoard() {
-  const { data: tasks = [] } = useTasks();
   const { selectedProject } = useUIStore();
+  const {
+    data: tasks = [],
+    isPending,
+    isError,
+    error,
+  } = useTasks(selectedProject);
   const queryClient = useQueryClient();
 
   const filteredTasks =
@@ -133,32 +148,45 @@ export default function KanbanBoard() {
       ? tasks
       : tasks.filter((t: Task) => t.projectId === selectedProject);
 
+  console.log("selectedProject: ", selectedProject);
   const mutation = useMutation({
-    mutationFn: (task: Task) =>
-      axios.put(`/api/tasks/${task.id}`, task),
+    mutationFn: async (task: Task) => {
+      const res = await axios.put(`/api/tasks/${task.id}`, task);
+      return res.data.task;
+    },
 
     onMutate: async (updatedTask) => {
-      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const queryKey = ["tasks", selectedProject];
 
-      const previousTasks = queryClient.getQueryData<Task[]>(["tasks"]);
+      await queryClient.cancelQueries({ queryKey });
 
-      queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
+      const previousTasks =
+        queryClient.getQueryData<Task[]>(queryKey);
+
+      queryClient.setQueryData<Task[]>(queryKey, (old = []) =>
         old.map((t) =>
-          t.id === updatedTask.id ? updatedTask : t
+          t.id === updatedTask.id
+            ? { ...t, status: updatedTask.status }
+            : t
         )
       );
 
-      return { previousTasks };
+      return { previousTasks, queryKey };
     },
 
     onError: (_err, _updatedTask, context) => {
       if (context?.previousTasks) {
-        queryClient.setQueryData(["tasks"], context.previousTasks);
+        queryClient.setQueryData(
+          context.queryKey,
+          context.previousTasks
+        );
       }
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", selectedProject],
+      });
     },
   });
 
@@ -176,6 +204,8 @@ export default function KanbanBoard() {
           status={col}
           tasks={filteredTasks.filter((t: Task) => t.status === col)}
           onDropTask={handleDrop}
+          isPending={isPending}
+          isError={isError}
         />
       ))}
     </div>

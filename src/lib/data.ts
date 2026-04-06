@@ -8,35 +8,6 @@ export const users: User[] = [
   { id: "u3", name: "Sarah", avatar: "/avatars/a3.png" },
 ];
 
-export const projects: Project[] = [
-  {
-    id: "p1",
-    name: "Dashboard App",
-    description: "Internal team dashboard",
-    members: ["u1", "u2"],
-    createdAt: new Date().toISOString(),
-  },
-];
-
-export let tasks: Task[] = [
-  {
-    id: uuid(),
-    title: "Design dashboard UI",
-    status: "todo",
-    priority: "high",
-    projectId: "p1",
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: uuid(),
-    title: "Setup Zustand store",
-    status: "in-progress",
-    priority: "medium",
-    projectId: "p1",
-    createdAt: new Date().toISOString(),
-  },
-];
-
 export const activities = [
   "Victor created a task",
   "John moved task to Done",

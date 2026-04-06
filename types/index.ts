@@ -38,13 +38,16 @@ export type Task = {
   createdAt: string;
 };
 
-export interface Project {
+// types/project.ts
+export type Project = {
   id: string;
   name: string;
   description?: string;
-  members: string[];
+  color?: string;
+  members: Assignee[];
   createdAt: string;
-}
+  updatedAt: string;
+};
 
 export interface Activity {
   id: string;

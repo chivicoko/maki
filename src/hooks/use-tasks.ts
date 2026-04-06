@@ -1,18 +1,4 @@
 // // src/hooks/useTasks.ts
-// import { useQuery } from "@tanstack/react-query";
-// import axios from "axios";
-
-// export const useTasks = () => {
-//   return useQuery({
-//     queryKey: ["tasks"],
-//     queryFn: async () => {
-//       const res = await axios.get("/api/tasks");
-//       return res.data;
-//     },
-//   });
-// };
-
-
 // // New implementation
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -23,12 +9,27 @@ type TasksResponse = {
   total: number;
 };
 
-export const useTasks = () => {
+// export const useTasks = () => {
+//   return useQuery({
+//     queryKey: ["tasks"],
+//     queryFn: async () => {
+//       const res = await axios.get<TasksResponse>("/api/tasks");
+//       return res.data.tasks;
+//     },
+//   });
+// };
+
+export function useTasks(projectId?: string) {
   return useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", projectId],
     queryFn: async () => {
-      const res = await axios.get<TasksResponse>("/api/tasks");
+      const url = "/api/tasks";
+      // const url = projectId && projectId !== "all"
+      //   ? `/api/tasks?projectId=${projectId}`
+      //   : "/api/tasks";
+
+      const res = await axios.get(url);
       return res.data.tasks;
     },
   });
-};
+}

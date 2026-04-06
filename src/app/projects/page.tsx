@@ -4,7 +4,7 @@ import { useState } from "react";
 import KanbanBoard from "@/components/tasks/kanban-board";
 import CreateTaskModal from "@/components/tasks/create-task-modal";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, PlusIcon } from "lucide-react";
 import Stats from "@/components/tasks/stats";
 import TaskDrawer from "@/components/tasks/task-drawer";
 import { useUIStore } from "@/store/ui-store";
@@ -20,10 +20,16 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useProjects } from "@/hooks/use-projects";
+import { ButtonGroup } from "@/components/ui/button-group";
+import ProjectModal from "@/components/tasks/project-modal";
 
 const page = () => {
   const [open, setOpen] = useState(false);
+  const [projectModalOpen, setProjectModalOpen] = useState(false);
   const { setProject } = useUIStore();
+  const { data: projects = [] } = useProjects();
+  console.log("projects: ", projects);
     
   return (
     <div className="space-y-6">
@@ -38,16 +44,46 @@ const page = () => {
 
         {/* MODAL TRIGGER BUTTON */}
         <div className="flex items-center gap-4">
-          <Select onValueChange={(value) => setProject(value)}>
-            <SelectTrigger className="w-[180px] bg-muted text-grey-800 border-2 border-gray-500">
-              <SelectValue placeholder="All Projects" />
-            </SelectTrigger>
+          <ButtonGroup>
+            <Select onValueChange={(value) => setProject(value)}>
+              <SelectTrigger className="w-[180px] bg-muted text-grey-800">
+                <SelectValue placeholder="All Projects" />
+              </SelectTrigger>
 
-            <SelectContent>
-              <SelectItem value="all">All Projects</SelectItem>
-              <SelectItem value="p1">Dashboard App</SelectItem>
-            </SelectContent>
-          </Select>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+
+                {projects.map((project) => (
+                  <SelectItem
+                    key={project.id}
+                    value={project.id}
+                    // onDoubleClick={() => {
+                    //   setEditingProject(project);
+                    //   setProjectModalOpen(true);
+                    // }}
+                  >
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={() => setProjectModalOpen(true)}>
+                  <PlusIcon />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Click to create a new project</p>
+              </TooltipContent>
+            </Tooltip>
+          </ButtonGroup>
+
+          <ProjectModal
+            open={projectModalOpen}
+            setOpen={setProjectModalOpen}
+          />
 
           <Tooltip>
             <TooltipTrigger asChild>

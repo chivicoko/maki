@@ -29,6 +29,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { useUIStore } from "@/store/ui-store";
 
 type FormData = z.infer<typeof taskSchema>;
 
@@ -40,6 +41,7 @@ export default function CreateTaskModal({
   setOpen: (val: boolean) => void;
 }) {
   const queryClient = useQueryClient();
+  const { selectedProject } = useUIStore();
 
   const {
     register,
@@ -56,7 +58,7 @@ export default function CreateTaskModal({
       status: "todo",
       priority: "medium",
       description: "",
-      projectId: "",
+      projectId: selectedProject || "",
       labels: [],
       assignees: [],
       dueDate: "",
@@ -272,9 +274,9 @@ export default function CreateTaskModal({
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2">
             {/* DUE DATE */}
-            <div className="space-y-1">
+            <div className="flex-1/2 space-y-1">
               <Label>Due Date</Label>
               <Input type="date" {...register("dueDate")} />
               {errors.dueDate && (
@@ -285,7 +287,7 @@ export default function CreateTaskModal({
             </div>
 
             {/* PROJECT */}
-            <div className="space-y-1">
+            <div className="flex-1/2 space-y-1">
               <Label>Project ID</Label>
               <Input {...register("projectId")} placeholder="project-alpha" />
               {errors.projectId && (
@@ -296,16 +298,16 @@ export default function CreateTaskModal({
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 flex-wrap">
+          <div className="flex items-center justify-between gap-2">
             {/* STATUS */}
-            <div className="space-y-1">
+            <div className="flex-1/2 space-y-1">
               <Label>Status</Label>
               <Controller
                 control={control}
                 name="status"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -324,14 +326,14 @@ export default function CreateTaskModal({
             </div>
 
             {/* PRIORITY */}
-            <div className="space-y-1">
+            <div className="flex-1/2 space-y-1">
               <Label>Priority</Label>
               <Controller
                 control={control}
                 name="priority"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select priority" />
                     </SelectTrigger>
                     <SelectContent>
