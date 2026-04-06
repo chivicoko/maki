@@ -34,11 +34,20 @@ import { taskSchema } from "@/lib/validators";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Badge } from "../ui/badge";
-import { XCircleIcon, XIcon } from "lucide-react";
+import { Trash2Icon, XCircleIcon, XIcon } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 type FormData = z.infer<typeof taskSchema>;
 
 export default function TaskDrawer() {
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { selectedTaskId, setTask } = useTaskStore();
   const { data: tasks = [] } = useTasks();
   const queryClient = useQueryClient();
@@ -178,221 +187,309 @@ export default function TaskDrawer() {
     mutation.mutate({ ...data, id: task.id });
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: async (taskId: string) => {
+      await axios.delete(`/api/tasks/${taskId}`);
+      return taskId;
+    },
+
+    onMutate: async (taskId) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+
+      const previous = queryClient.getQueryData<Task[]>(["tasks"]);
+
+      queryClient.setQueryData<Task[]>(["tasks"], (old = []) =>
+        old.filter((t) => t.id !== taskId)
+      );
+
+      return { previous };
+    },
+
+    onSuccess: () => {
+      toast.success("Task deleted successfully 🗑️");
+      setOpenDeleteModal(false);
+      setTask(null); // closes drawer
+    },
+
+    onError: (_err, _taskId, context) => {
+      toast.error("Failed to delete task ❌");
+
+      if (context?.previous) {
+        queryClient.setQueryData(["tasks"], context.previous);
+      }
+    },
+
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+  });
+
   return (
-    <Sheet open={!!selectedTaskId} onOpenChange={() => setTask(null)}>
-      <SheetContent side="right" className="w-[400px] overflow-y-scroll custom-scrollbar">
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4"
-        >
-          <SheetHeader>
-            <SheetTitle className="text-xl font-semibold">
-              {task?.title}
-            </SheetTitle>
-          </SheetHeader>
+    <>
+      <Sheet open={!!selectedTaskId} onOpenChange={() => setTask(null)}>
+        <SheetContent side="right" className="w-[400px] overflow-y-scroll custom-scrollbar">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+          >
+            <SheetHeader>
+              <SheetTitle className="text-xl font-semibold">
+                {task?.title}
+              </SheetTitle>
+            </SheetHeader>
 
-          <hr/>
+            <hr/>
 
-          <div className="px-4 pb-4 space-y-4">
-            {/* TITLE */}
-            <div className="space-y-1">
-              <Label>Title</Label>
-              <Input {...register("title")} />
-              {errors.title && (
-                <p className="text-sm text-red-500">
-                  {errors.title.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label>Labels</Label>
-
-              <Input
-                value={labelInput}
-                onChange={(e) => setLabelInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    addLabel();
-                  }
-                }}
-                placeholder="Type label and press Enter"
-              />
-              {errors.labels && (
-                <p className="text-sm text-red-500">
-                  {errors.labels.message}
-                </p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                {labels.map((label, idx) => (
-                  <Badge
-                    key={idx}
-                    className="bg-gray-200 text-foreground capitalize pr-0.5"
-                  >
-                    <span>{label}</span>
-                    <Button
-                      onClick={() => removeLabel(label)}
-                      className="cursor-pointer p-0 bg-transparent text-destructive"
-                    >
-                      <XCircleIcon />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-
-            <div className="space-y-2">
-              <Label>Assignees</Label>
-
-              <Input
-                value={assigneeInput}
-                onChange={(e) => setAssigneeInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    addAssignee();
-                  }
-                }}
-                placeholder="Type assignee and press Enter"
-              />
-              {errors.assignees && (
-                <p className="text-sm text-red-500">
-                  {errors.assignees.message}
-                </p>
-              )}
-              <div className="flex flex-wrap gap-2">
-                {assignees.map((assignee, idx) => (
-                  <Badge
-                    key={idx}
-                    className="bg-gray-200 text-foreground capitalize pr-0.5"
-                  >
-                    <span>{assignee}</span>
-                    <Button
-                      onClick={() => removeAssignee(assignee)}
-                      className="cursor-pointer p-0 bg-transparent text-destructive"
-                    >
-                      <XCircleIcon />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <Label>Due Date</Label>
-              <Input type="date" {...register("dueDate")} />
-              {errors.dueDate && (
-                <p className="text-sm text-red-500">
-                  {errors.dueDate.message}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-1">
-              <Label>Project ID</Label>
-              <Input {...register("projectId")} />
-              {errors.projectId && (
-                <p className="text-sm text-red-500">
-                  {errors.projectId.message}
-                </p>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              {/* STATUS */}
+            <div className="px-4 pb-4 space-y-4">
+              {/* TITLE */}
               <div className="space-y-1">
-                <Label>Status</Label>
-                <Controller
-                  control={control}
-                  name="status"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="todo">Todo</SelectItem>
-                        <SelectItem value="in-progress">In Progress</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.status && (
+                <Label>Title</Label>
+                <Input {...register("title")} />
+                {errors.title && (
                   <p className="text-sm text-red-500">
-                    {errors.status.message}
+                    {errors.title.message}
                   </p>
                 )}
               </div>
 
-              {/* PRIORITY */}
-              <div className="space-y-1">
-                <Label>Priority</Label>
-                <Controller
-                  control={control}
-                  name="priority"
-                  render={({ field }) => (
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
+              <div className="space-y-2">
+                <Label>Labels</Label>
+
+                <Input
+                  value={labelInput}
+                  onChange={(e) => setLabelInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      addLabel();
+                    }
+                  }}
+                  placeholder="Type label and press Enter"
                 />
-                {errors.priority && (
+                {errors.labels && (
                   <p className="text-sm text-red-500">
-                    {errors.priority.message}
+                    {errors.labels.message}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {labels.map((label, idx) => (
+                    <Badge
+                      key={idx}
+                      className="bg-gray-200 text-foreground capitalize pr-0.5"
+                    >
+                      <span>{label}</span>
+                      <Button
+                        onClick={() => removeLabel(label)}
+                        className="cursor-pointer p-0 bg-transparent text-destructive"
+                      >
+                        <XCircleIcon />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+
+              <div className="space-y-2">
+                <Label>Assignees</Label>
+
+                <Input
+                  value={assigneeInput}
+                  onChange={(e) => setAssigneeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault();
+                      addAssignee();
+                    }
+                  }}
+                  placeholder="Type assignee and press Enter"
+                />
+                {errors.assignees && (
+                  <p className="text-sm text-red-500">
+                    {errors.assignees.message}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {assignees.map((assignee, idx) => (
+                    <Badge
+                      key={idx}
+                      className="bg-gray-200 text-foreground capitalize pr-0.5"
+                    >
+                      <span>{assignee}</span>
+                      <Button
+                        onClick={() => removeAssignee(assignee)}
+                        className="cursor-pointer p-0 bg-transparent text-destructive"
+                      >
+                        <XCircleIcon />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label>Due Date</Label>
+                <Input type="date" {...register("dueDate")} />
+                {errors.dueDate && (
+                  <p className="text-sm text-red-500">
+                    {errors.dueDate.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                <Label>Project ID</Label>
+                <Input {...register("projectId")} />
+                {errors.projectId && (
+                  <p className="text-sm text-red-500">
+                    {errors.projectId.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                {/* STATUS */}
+                <div className="space-y-1">
+                  <Label>Status</Label>
+                  <Controller
+                    control={control}
+                    name="status"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todo">Todo</SelectItem>
+                          <SelectItem value="in-progress">In Progress</SelectItem>
+                          <SelectItem value="done">Done</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.status && (
+                    <p className="text-sm text-red-500">
+                      {errors.status.message}
+                    </p>
+                  )}
+                </div>
+
+                {/* PRIORITY */}
+                <div className="space-y-1">
+                  <Label>Priority</Label>
+                  <Controller
+                    control={control}
+                    name="priority"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.priority && (
+                    <p className="text-sm text-red-500">
+                      {errors.priority.message}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="space-y-1">
+                <Label>Description</Label>
+                <Textarea {...register("description")} />
+                {errors.description && (
+                  <p className="text-sm text-red-500">
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+
+              {/* SAVE */}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={mutation.isPending || !isDirty}
+              >
+                {mutation.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+
+              {/* DELETE */}
+              <Button
+                type="button"
+                onClick={() => setOpenDeleteModal(true)}
+                className="w-full bg-destructive hover:bg-destructive/80"
+              >
+                Delete Task
+              </Button>
+
+              {/* ACTIVITY */}
+              <div className="pt-4">
+                {activities.length > 0 ? (
+                  <ActivityFeed />
+                ) : (
+                  <p className="text-xs text-gray-400">
+                    No activity yet...
                   </p>
                 )}
               </div>
             </div>
+          </form>
+        </SheetContent>
+      </Sheet>
 
-            {/* DESCRIPTION */}
-            <div className="space-y-1">
-              <Label>Description</Label>
-              <Textarea {...register("description")} />
-              {errors.description && (
-                <p className="text-sm text-red-500">
-                  {errors.description.message}
-                </p>
-              )}
-            </div>
+      {/* DELETE MODAL */}
+      <Dialog
+        open={openDeleteModal}
+        onOpenChange={setOpenDeleteModal}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              <h3 className="font-semibold">{task?.title}</h3>
+            </DialogTitle>
+            <DialogDescription>
+              <div className="flex flex-col items-center gap-2 mt-5">
+                <Trash2Icon className="text-red-600" />
+                <p className="mt-2 text-center">Are you sure you want to delete this task?</p>
+                <i className="font-semibold">This action cannot be undone.</i>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
 
-            {/* SAVE */}
+          <div className="flex justify-end gap-2 pt-4">
             <Button
-              type="submit"
-              className="w-full"
-              disabled={mutation.isPending || !isDirty}
+              type="button"
+              variant="outline"
+              onClick={() => setOpenDeleteModal(false)}
             >
-              {mutation.isPending ? "Saving..." : "Save Changes"}
+              Cancel
             </Button>
 
-            {/* ACTIVITY */}
-            <div className="pt-4">
-              {activities.length > 0 ? (
-                <ActivityFeed />
-              ) : (
-                <p className="text-xs text-gray-400">
-                  No activity yet...
-                </p>
-              )}
-            </div>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => task && deleteMutation.mutate(task.id)}
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
           </div>
-        </form>
-      </SheetContent>
-    </Sheet>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

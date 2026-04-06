@@ -5,10 +5,12 @@ import { useTaskStore } from "@/store/task-store";
 import { useUIStore } from "@/store/ui-store";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import { Task } from "../../../types";
-import { Grip } from "lucide-react";
+import { Grip, HandIcon } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const columns: Task["status"][] = ["todo", "in-progress", "done"];
 
@@ -36,18 +38,18 @@ function TaskCard({ task }: { task: Task }) {
   return (
     <div
       ref={ref}
-      className={`flex items-center justify-between rounded-lg mb-2 pr-3 bg-muted shadow transition cursor-move ${
+      className={`flex items-center justify-between rounded-lg mb-2 pr-3 bg-muted shadow transition cursor-move border border-transparent hover:border-blue-500 group ${
         isDragging ? "opacity-50" : ""
       }`}
     >
       <div
         onClick={() => setTask(task.id)}
-        className="cursor-pointer w-[90%] h-full py-3 pl-3"
+        className="cursor-pointer w-[90%] h-full py-3 pl-3 truncate group-hover:text-blue-600"
       >
         {task.title}
       </div>
 
-      <Grip className="w-5 text-gray-400" />
+      {isDragging ? <HandIcon className="w-5 text-gray-400" /> : <Grip className="w-5 text-gray-400" />}
     </div>
   );
 }
@@ -79,6 +81,7 @@ function Column({
       drop(ref);
     }
   }, [drop]);
+  // console.log("tasks: ", tasks);
 
   return (
     <div
@@ -91,9 +94,29 @@ function Column({
         {status.replace("-", " ")}
       </h2>
 
-      {tasks.map((task) => (
+      {tasks?.length > 0 ? tasks.map((task) => (
         <TaskCard key={task.id} task={task} />
-      ))}
+      ))
+      : 
+      // <Card className="w-full max-w-xs">
+      //   <CardHeader>
+      //     <Skeleton className="h-4 w-2/3" />
+      //     <Skeleton className="h-4 w-1/2" />
+      //   </CardHeader>
+      //   <CardContent>
+      //     <Skeleton className="aspect-video w-full" />
+      //   </CardContent>
+      // </Card>
+
+      <div className="flex items-center gap-4">
+        <div className="space-y-2">
+          <Skeleton className="h-12 w-[380px]" />
+          <Skeleton className="h-12 w-[380px]" />
+          <Skeleton className="h-12 w-[380px]" />
+          <Skeleton className="h-12 w-[380px]" />
+        </div>
+      </div>
+    }
     </div>
   );
 }

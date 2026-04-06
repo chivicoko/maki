@@ -193,7 +193,7 @@ export default function CreateTaskModal({
             )}
             <div className="flex flex-wrap gap-2">
               {labels.map((label, idx) => (
-                <Badge key={idx} className="bg-gray-200 text-foreground pr-1">
+                <Badge key={idx} className="bg-gray-200 text-foreground pr-1 capitalize">
                   {label}
                   <Button
                     type="button"
@@ -230,7 +230,7 @@ export default function CreateTaskModal({
             )}
             <div className="flex flex-wrap gap-2">
               {assignees.map((assignee, idx) => (
-                <Badge key={idx} className="bg-gray-200 text-foreground pr-1">
+                <Badge key={idx} className="bg-gray-200 text-foreground pr-1 capitalize">
                   {assignee}
                   <Button
                     type="button"
