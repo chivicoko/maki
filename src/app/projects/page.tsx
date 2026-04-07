@@ -4,7 +4,7 @@ import { useState } from "react";
 import KanbanBoard from "@/components/tasks/kanban-board";
 import CreateTaskModal from "@/components/tasks/create-task-modal";
 import { Button } from "@/components/ui/button";
-import { Plus, PlusIcon } from "lucide-react";
+import { EyeClosedIcon, EyeIcon, EyeOffIcon, Plus, PlusIcon } from "lucide-react";
 import Stats from "@/components/tasks/stats";
 import TaskDrawer from "@/components/tasks/task-drawer";
 import { useUIStore } from "@/store/ui-store";
@@ -23,13 +23,15 @@ import {
 import { useProjects } from "@/hooks/use-projects";
 import { ButtonGroup } from "@/components/ui/button-group";
 import ProjectModal from "@/components/tasks/project-modal";
+import { Project } from "../../../types";
 
 const page = () => {
   const [open, setOpen] = useState(false);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project>();
   const { setProject } = useUIStore();
   const { data: projects = [] } = useProjects();
-  console.log("projects: ", projects);
+  // console.log("projects: ", projects);
     
   return (
     <div className="space-y-6">
@@ -57,12 +59,41 @@ const page = () => {
                   <SelectItem
                     key={project.id}
                     value={project.id}
-                    // onDoubleClick={() => {
-                    //   setEditingProject(project);
-                    //   setProjectModalOpen(true);
-                    // }}
+                    onSelect={(e) => {
+                      if (e.defaultPrevented) return;
+                      setProject(project.id);
+                    }}
+                    className="flex items-center justify-between"
                   >
-                    {project.name}
+                    <div className="flex items-center gap-2 w-full">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="outline"
+                            type="button"
+                            onPointerDown={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+
+                              setEditingProject(project);
+                              setProjectModalOpen(true);
+                            }}
+                            className="py-0 border-0 bg-transparent hover:bg-transparent relative group size-6"
+                          >
+                            <EyeIcon className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out" />
+                            <EyeClosedIcon className="absolute opacity-100 group-hover:opacity-0 transition-opacity duration-500 ease-in-out" />
+                          </Button>
+                        </TooltipTrigger>
+
+                        <TooltipContent>
+                          <p>
+                            View and edit <strong>{project.name}</strong>
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+
+                      <span>{project.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -70,7 +101,13 @@ const page = () => {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="outline" onClick={() => setProjectModalOpen(true)}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setEditingProject(undefined);
+                    setProjectModalOpen(true);
+                  }}
+                >
                   <PlusIcon />
                 </Button>
               </TooltipTrigger>
@@ -83,6 +120,8 @@ const page = () => {
           <ProjectModal
             open={projectModalOpen}
             setOpen={setProjectModalOpen}
+            setEditingProject={setEditingProject}
+            project={editingProject}
           />
 
           <Tooltip>

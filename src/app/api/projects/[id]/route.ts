@@ -1,6 +1,7 @@
 // app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
 import { projects } from "../data";
+import { tasks } from "../../tasks/data";
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -92,10 +93,23 @@ export async function DELETE(
   }
 
   const deletedProject = projects[index];
+
+  // ✅ cascade delete tasks linked to project
+  let deletedTaskCount = 0;
+
+  for (let i = tasks.length - 1; i >= 0; i--) {
+    if (tasks[i].projectId === id) {
+      tasks.splice(i, 1);
+      deletedTaskCount++;
+    }
+  }
+
+  // ✅ remove project
   projects.splice(index, 1);
 
   return NextResponse.json({
     project: deletedProject,
-    message: "Project deleted successfully",
+    deletedTaskCount,
+    message: `Project deleted successfully with ${deletedTaskCount} associated task(s)`,
   });
 }

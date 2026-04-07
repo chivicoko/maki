@@ -6,7 +6,16 @@ export const seedProjects: Project[] = [
   {
     id: "project-dashboard",
     name: "Dashboard App",
-    members: ["VeeCee", "Makki"],
+    members: [
+        {
+            name: "VeeCee",
+            avatar: ""
+        },
+        {
+            name: "Malik",
+            avatar: ""
+        },
+    ],
     color: "#3b82f6",
     description: "Admin analytics dashboard",
     createdAt: new Date().toISOString(),
@@ -15,7 +24,16 @@ export const seedProjects: Project[] = [
   {
     id: "project-mobile",
     name: "Mobile App",
-    members: ["Luke", "Malik"],
+    members: [
+        {
+            name: "VeeCee",
+            avatar: ""
+        },
+        {
+            name: "Malik",
+            avatar: ""
+        },
+    ],
     color: "#3b82f6",
     description: "Customer mobile platform",
     createdAt: new Date().toISOString(),
@@ -25,7 +43,16 @@ export const seedProjects: Project[] = [
     id: "project-analytics",
     name: "Dashboard Analytics System",
     description: "Main analytics dashboard",
-    members: ["Luke", "Malik"], 
+    members: [
+        {
+            name: "VeeCee",
+            avatar: ""
+        },
+        {
+            name: "Malik",
+            avatar: ""
+        },
+    ],
     color: "#3b82f6",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -34,7 +61,16 @@ export const seedProjects: Project[] = [
     id: "project-crm",
     name: "CRM System",
     description: "Customer management platform",
-    members: ["Luke", "Malik"],
+    members: [
+        {
+            name: "VeeCee",
+            avatar: ""
+        },
+        {
+            name: "Malik",
+            avatar: ""
+        },
+    ],
     color: "#3b82f6",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),

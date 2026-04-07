@@ -148,7 +148,7 @@ export default function KanbanBoard() {
       ? tasks
       : tasks.filter((t: Task) => t.projectId === selectedProject);
 
-  console.log("selectedProject: ", selectedProject);
+  // console.log("selectedProject: ", selectedProject);
   const mutation = useMutation({
     mutationFn: async (task: Task) => {
       const res = await axios.put(`/api/tasks/${task.id}`, task);
