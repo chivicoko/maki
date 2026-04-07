@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Trash2Icon, XCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Project } from "../../../types";
+import { Spinner } from "../ui/spinner";
 
 type Member = {
   name: string;
@@ -272,13 +273,15 @@ export default function ProjectModal({
                     className="w-full"
                     disabled={mutation.isPending}
                 >
-                    {mutation.isPending
-                    ? project
-                        ? "Updating..."
-                        : "Creating..."
+                    {mutation.isPending ?
+                        <div className="flex items-center gap-2">
+                            <Spinner />
+                            {project ? "Updating" : "Creating"}
+                        </div>
                     : project
-                    ? "Update Project"
-                    : "Create Project"}
+                        ? "Update Project"
+                        : "Create Project"
+                    }
                 </Button>
         
                 {project && (
@@ -340,8 +343,13 @@ export default function ProjectModal({
                     disabled={deleteMutation.isPending}
                 >
                     {deleteMutation.isPending
-                    ? "Deleting..."
-                    : "Delete Project"}
+                        ? 
+                        <div className="flex items-center gap-2">
+                            <Spinner />
+                            <p>Deleting</p>
+                        </div>
+                        : "Delete Project"
+                    }
                 </Button>
                 </div>
             </DialogContent>

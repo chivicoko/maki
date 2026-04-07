@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getInitials } from "@/lib/utils";
+import { Spinner } from "../ui/spinner";
 
 type FormData = z.infer<typeof taskSchema>;
 
@@ -457,14 +458,20 @@ export default function TaskDrawer() {
                 className="w-full"
                 disabled={mutation.isPending || !isDirty}
               >
-                {mutation.isPending ? "Saving..." : "Save Changes"}
+                {mutation.isPending ? 
+                <div className="flex items-center gap-2">
+                  <Spinner />
+                  <p>Saving</p>
+                </div>
+                : "Save Changes"}
               </Button>
 
               {/* DELETE */}
               <Button
                 type="button"
+                variant={"destructive"}
                 onClick={() => setOpenDeleteModal(true)}
-                className="w-full bg-destructive hover:bg-destructive/80"
+                className="w-full"
               >
                 Delete Task
               </Button>
@@ -516,7 +523,14 @@ export default function TaskDrawer() {
               onClick={() => task && deleteMutation.mutate(task.id)}
               disabled={deleteMutation.isPending}
             >
-              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+              {deleteMutation.isPending
+                ? 
+                <div className="flex items-center gap-2">
+                    <Spinner />
+                    <p>Deleting</p>
+                </div>
+                : "Delete Task"
+              }
             </Button>
           </div>
         </DialogContent>

@@ -124,17 +124,10 @@ const page = () => {
             project={editingProject}
           />
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
-                <Plus className="size-4" />
-                New Task
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Click to create a new task</p>
-            </TooltipContent>
-          </Tooltip>
+          <Button onClick={() => setOpen(true)} className="flex items-center gap-2">
+            <Plus className="size-4" />
+            New Task
+          </Button>
         </div>
       </div>
 

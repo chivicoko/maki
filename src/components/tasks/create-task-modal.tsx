@@ -30,6 +30,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { useUIStore } from "@/store/ui-store";
+import { Spinner } from "../ui/spinner";
 
 type FormData = z.infer<typeof taskSchema>;
 
@@ -371,7 +372,12 @@ export default function CreateTaskModal({
             className="w-full"
             disabled={mutation.isPending || !isDirty}
           >
-            {mutation.isPending ? "Creating..." : "Create Task"}
+            {mutation.isPending ? 
+            <div className="flex items-center gap-2">
+              <Spinner />
+              <p>Creating</p>
+            </div>
+            : "Create Task"}
           </Button>
         </form>
       </DialogContent>
